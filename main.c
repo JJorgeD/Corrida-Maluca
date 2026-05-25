@@ -129,3 +129,46 @@ void verificarVelocidade(Jogador *j, int frames, int *frames_mensagem, char *men
         *frames_mensagem = 25;
     }
 }
+void moverCarros(Carro **lista) {
+    Carro *atual = *lista;
+    Carro *anterior = NULL;
+
+    while (atual != NULL) {
+        atual->y += atual->direcao;
+
+        if (atual->y >= ALTURA) {
+            Carro *remover = atual;
+            if (anterior == NULL)
+                *lista = atual->prox;
+            else
+                anterior->prox = atual->prox;
+            atual = atual->prox;
+            free(remover);
+        } else {
+            anterior = atual;
+            atual = atual->prox;
+        }
+    }
+}
+
+void liberarCarros(Carro **lista) {
+    Carro *atual = *lista;
+    while (atual != NULL) {
+        Carro *prox = atual->prox;
+        free(atual);
+        atual = prox;
+    }
+    *lista = NULL;
+}
+
+int verificarColisao(Jogador *j, Carro *lista) {
+    Carro *atual = lista;
+    while (atual != NULL) {
+        if (atual->faixa == j->x &&
+            atual->y >= j->y - 1 &&
+            atual->y <= j->y + 1)
+            return 1;
+        atual = atual->prox;
+    }
+    return 0;
+}
