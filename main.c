@@ -88,3 +88,12 @@ void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem) {
         printf("%s", mensagem);
     }
 }
+void desenharCarros(Carro *lista) {
+    Carro *atual = lista;
+    while (atual != NULL) {
+        screenSetColor(RED, DARKGRAY);
+        screenGotoxy(atual->faixa * LARGURA_FAIXA + 4, atual->y);
+        printf("[X]");
+        atual = atual->prox;
+    }
+}
