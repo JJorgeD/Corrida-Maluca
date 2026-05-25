@@ -1,64 +1,145 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "screen.h"
 #include "keyboard.h"
 #include "timer.h"
 
-// Dimensoes da pista
-#define LARGURA 40
-#define ALTURA  20
+#define LARGURA 36
+#define ALTURA  18
 #define NUM_FAIXAS 4
+#define LARGURA_FAIXA (LARGURA / NUM_FAIXAS)
 
-// Structs
+// ========== STRUCTS ==========
+
 typedef struct {
-    int x, y;       // posicao na pista
-    int velocidade; // metros percorridos
-    int pecas;      // pecas coletadas
+    int x, y;
+    int velocidade;
+    int pecas;
+    int distancia;
 } Jogador;
 
-// Funcoes
+typedef struct Carro {
+    int faixa;
+    int y;
+    int direcao;
+    struct Carro *prox;
+} Carro;
+
+// ========== PROTOTIPOS ==========
+
 void desenharPista();
 void desenharJogador(Jogador *j);
+void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem);
+void desenharCarros(Carro *lista);
+Carro* criarCarro(int faixa, int y, int direcao);
+void adicionarCarro(Carro **lista, int faixa, int y, int direcao);
+void verificarVelocidade(Jogador *j, int frames, int *frames_mensagem, char *mensagem);
+void moverCarros(Carro **lista);
+void liberarCarros(Carro **lista);
+int verificarColisao(Jogador *j, Carro *lista);
+
+// ========== MAIN ==========
 
 int main() {
+    srand(time(NULL));
     screenInit(1);
     keyboardInit();
-    timerInit(100); // 100ms por frame
+    timerInit(200);
 
     Jogador jogador;
-    jogador.x = NUM_FAIXAS / 2;
-    jogador.y = ALTURA - 2;
+    jogador.x = 1;
+    jogador.y = ALTURA - 3;
     jogador.velocidade = 1;
     jogador.pecas = 0;
+    jogador.distancia = 0;
+
+    Carro *carros = NULL;
 
     int ch = 0;
+    int rodando = 1;
+    int frames = 0;
+    int ultimo_carro_frame = 0;
+    int frames_mensagem = 0;
+    char mensagem_velocidade[30] = "";
 
-    while (ch != 10) { // 10 = Enter para sair
+    while (rodando) {
         if (keyhit()) {
             ch = readch();
+            if (ch == 27) {
+                readch();
+                ch = readch();
+                if (ch == 68 && jogador.x > 0) jogador.x--;
+                else if (ch == 67 && jogador.x < NUM_FAIXAS - 1) jogador.x++;
+            }
+            if (ch == 97 && jogador.x > 0) jogador.x--;
+            if (ch == 100 && jogador.x < NUM_FAIXAS - 1) jogador.x++;
+            if (ch == 10) rodando = 0;
         }
 
         if (timerTimeOver() == 1) {
+            frames++;
+            jogador.distancia += jogador.velocidade;
+            verificarVelocidade(&jogador, frames, &frames_mensagem, mensagem_velocidade);
+
+            int movimentos = 1 + (jogador.velocidade / 3);
+            int m;
+            for (m = 0; m < movimentos; m++) {
+                if (frames % 2 == 0)
+                    moverCarros(&carros);
+            }
+
+            int intervalo = 20 / jogador.velocidade;
+            if (intervalo < 3) intervalo = 3;
+
+            if (frames - ultimo_carro_frame >= intervalo) {
+                int faixa = rand() % NUM_FAIXAS;
+                adicionarCarro(&carros, faixa, 0, 1);
+                ultimo_carro_frame = frames;
+            }
+
+            if (verificarColisao(&jogador, carros)) {
+                rodando = 0;
+            }
+
             screenClear();
             desenharPista();
+            desenharCarros(carros);
             desenharJogador(&jogador);
+            desenharHUD(&jogador, frames_mensagem, mensagem_velocidade);
+            if (frames_mensagem > 0) frames_mensagem--;
             screenUpdate();
         }
     }
 
+    screenClear();
+    screenGotoxy(10, 8);
+    screenSetColor(RED, DARKGRAY);
+    printf("GAME OVER!");
+    screenGotoxy(10, 9);
+    printf("Distancia: %d metros", jogador.distancia);
+    screenUpdate();
+
+    liberarCarros(&carros);
     keyboardDestroy();
     screenDestroy();
     timerDestroy();
     return 0;
 }
 
+// ========== FUNCOES ==========
+
 void desenharPista() {
     screenSetColor(WHITE, DARKGRAY);
     for (int i = 0; i < ALTURA; i++) {
         screenGotoxy(0, i);
         printf("|");
+        for (int f = 1; f < NUM_FAIXAS; f++) {
+            screenGotoxy(f * LARGURA_FAIXA, i);
+            if (i % 2 == 0) printf(":");
+        }
         screenGotoxy(LARGURA, i);
         printf("|");
     }
@@ -66,9 +147,10 @@ void desenharPista() {
 
 void desenharJogador(Jogador *j) {
     screenSetColor(YELLOW, DARKGRAY);
-    screenGotoxy(j->x * (LARGURA / NUM_FAIXAS) + 2, j->y);
+    screenGotoxy(j->x * LARGURA_FAIXA + 2, j->y);
     printf("[P]");
 }
+
 void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem) {
     screenSetColor(CYAN, DARKGRAY);
     screenGotoxy(38, 1);
@@ -88,6 +170,7 @@ void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem) {
         printf("%s", mensagem);
     }
 }
+
 void desenharCarros(Carro *lista) {
     Carro *atual = lista;
     while (atual != NULL) {
@@ -106,11 +189,13 @@ Carro* criarCarro(int faixa, int y, int direcao) {
     novo->prox = NULL;
     return novo;
 }
+
 void adicionarCarro(Carro **lista, int faixa, int y, int direcao) {
     Carro *novo = criarCarro(faixa, y, direcao);
     novo->prox = *lista;
     *lista = novo;
 }
+
 void verificarVelocidade(Jogador *j, int frames, int *frames_mensagem, char *mensagem) {
     int nova_velocidade = j->velocidade;
 
@@ -129,6 +214,7 @@ void verificarVelocidade(Jogador *j, int frames, int *frames_mensagem, char *men
         *frames_mensagem = 25;
     }
 }
+
 void moverCarros(Carro **lista) {
     Carro *atual = *lista;
     Carro *anterior = NULL;
