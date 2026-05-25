@@ -69,3 +69,22 @@ void desenharJogador(Jogador *j) {
     screenGotoxy(j->x * (LARGURA / NUM_FAIXAS) + 2, j->y);
     printf("[P]");
 }
+void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem) {
+    screenSetColor(CYAN, DARKGRAY);
+    screenGotoxy(38, 1);
+    printf("Distancia: %d m", j->distancia);
+    screenGotoxy(38, 2);
+    printf("Velocidade: %d", j->velocidade);
+    screenGotoxy(38, 3);
+    printf("Pecas: %d", j->pecas);
+    screenGotoxy(38, 5);
+    printf("A/D: mover");
+    screenGotoxy(38, 6);
+    printf("Enter: sair");
+
+    if (frames_mensagem > 0) {
+        screenSetColor(YELLOW, DARKGRAY);
+        screenGotoxy(5, 8);
+        printf("%s", mensagem);
+    }
+}
