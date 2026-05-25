@@ -97,3 +97,17 @@ void desenharCarros(Carro *lista) {
         atual = atual->prox;
     }
 }
+
+Carro* criarCarro(int faixa, int y, int direcao) {
+    Carro *novo = (Carro*) malloc(sizeof(Carro));
+    novo->faixa = faixa;
+    novo->y = y;
+    novo->direcao = direcao;
+    novo->prox = NULL;
+    return novo;
+}
+void adicionarCarro(Carro **lista, int faixa, int y, int direcao) {
+    Carro *novo = criarCarro(faixa, y, direcao);
+    novo->prox = *lista;
+    *lista = novo;
+}
