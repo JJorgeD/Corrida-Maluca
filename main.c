@@ -12,12 +12,9 @@
 #define NUM_FAIXAS 4
 #define LARGURA_FAIXA (LARGURA / NUM_FAIXAS)
 
-// ========== STRUCTS ==========
-
 typedef struct {
     int x, y;
     int velocidade;
-    int pecas;
     int distancia;
 } Jogador;
 
@@ -28,8 +25,7 @@ typedef struct Carro {
     struct Carro *prox;
 } Carro;
 
-// ========== PROTOTIPOS ==========
-
+void telaInicio();
 void desenharPista();
 void desenharJogador(Jogador *j);
 void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem);
@@ -41,19 +37,18 @@ void moverCarros(Carro **lista);
 void liberarCarros(Carro **lista);
 int verificarColisao(Jogador *j, Carro *lista);
 
-// ========== MAIN ==========
-
 int main() {
     srand(time(NULL));
     screenInit(1);
     keyboardInit();
     timerInit(200);
 
+    telaInicio();
+
     Jogador jogador;
     jogador.x = 1;
     jogador.y = ALTURA - 3;
     jogador.velocidade = 1;
-    jogador.pecas = 0;
     jogador.distancia = 0;
 
     Carro *carros = NULL;
@@ -129,7 +124,41 @@ int main() {
     return 0;
 }
 
-// ========== FUNCOES ==========
+void telaInicio() {
+    screenClear();
+    screenSetColor(YELLOW, DARKGRAY);
+    screenGotoxy(10, 5);
+    printf("================================");
+    screenGotoxy(10, 6);
+    printf("        CORRIDA  MALUCA         ");
+    screenGotoxy(10, 7);
+    printf("================================");
+
+    FILE *f = fopen("highscore.txt", "r");
+    screenSetColor(CYAN, DARKGRAY);
+    screenGotoxy(10, 9);
+    if (f != NULL) {
+        char nome[50];
+        int score;
+        fscanf(f, "%s %d", nome, &score);
+        fclose(f);
+        printf("High Score: %s - %d metros", nome, score);
+    } else {
+        printf("High Score: nenhum ainda!");
+    }
+
+    screenSetColor(WHITE, DARKGRAY);
+    screenGotoxy(10, 12);
+    printf("Pressione ENTER para jogar...");
+    screenGotoxy(10, 13);
+    printf("Pressione Q para sair");
+    screenUpdate();
+
+    int ch = 0;
+    while (ch != 10 && ch != 'q') {
+        if (keyhit()) ch = readch();
+    }
+}
 
 void desenharPista() {
     screenSetColor(WHITE, DARKGRAY);
@@ -157,8 +186,6 @@ void desenharHUD(Jogador *j, int frames_mensagem, char *mensagem) {
     printf("Distancia: %d m", j->distancia);
     screenGotoxy(38, 2);
     printf("Velocidade: %d", j->velocidade);
-    screenGotoxy(38, 3);
-    printf("Pecas: %d", j->pecas);
     screenGotoxy(38, 5);
     printf("A/D: mover");
     screenGotoxy(38, 6);
