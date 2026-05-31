@@ -13,7 +13,7 @@ O jogador controla um carro em uma pista de 4 faixas e deve desviar dos veículo
 
 | Link Screencast |
 |----------------|
-|  [https://youtu.be/HGds_u-RQZU](#) |
+|  [https://youtu.be/HGds_u-RQZU?si=BU4hWBwX9b3XqbCe](#) |
 
 ---
 
