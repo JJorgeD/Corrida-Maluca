@@ -94,32 +94,32 @@ make run
 
 ---
 
-##  Como Jogar
+## 🎮 Como Jogar
 
 | Tecla | Ação |
 |-------|------|
-| `A` ou `←` | Mover para a esquerda |
-| `D` ou `→` | Mover para a direita |
-| `Enter` | Sair do jogo |
+| `W` ou `↑` | Navegar para cima no menu |
+| `S` ou `↓` | Navegar para baixo no menu |
+| `A` ou `←` | Mover carro para a esquerda |
+| `D` ou `→` | Mover carro para a direita |
+| `Enter` | Confirmar / Sair do jogo |
 
 - Desvie dos carros vermelhos `[X]`
 - A velocidade aumenta a cada 30 segundos
 - Tente percorrer a maior distância possível
-- Ao bater o recorde, digite seu nome para salvar no ranking!
+- Ao final, digite seu nome para entrar no ranking!
 
----
 
-##  Estrutura do Projeto
+## 📁 Estrutura do Projeto
 
 Corrida-Maluca/
 ├── include/        # Headers da cli-lib
 ├── src/            # Código fonte da cli-lib
 ├── main.c          # Código principal do jogo
 ├── Makefile        # Script de compilação
-├── highscore.txt   # Arquivo de high score (gerado automaticamente)
+├── highscore.txt   # Melhor pontuação (gerado automaticamente)
+├── ranking.txt     # Top 5 pontuações (gerado automaticamente)
 └── README.md
-
----
 
 ## ⚠️ Notas Importantes
 
