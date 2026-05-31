@@ -110,3 +110,19 @@ make run
 ---
 
 ##  Estrutura do Projeto
+
+Corrida-Maluca/
+├── include/        # Headers da cli-lib
+├── src/            # Código fonte da cli-lib
+├── main.c          # Código principal do jogo
+├── Makefile        # Script de compilação
+├── highscore.txt   # Arquivo de high score (gerado automaticamente)
+└── README.md
+
+---
+
+## ⚠️ Notas Importantes
+
+- O jogo utiliza a biblioteca **cli-lib** para renderização no terminal.
+- No **Windows**, é necessário usar **WSL** (Ubuntu) para rodar o jogo.
+- O arquivo `highscore.txt` é criado automaticamente na primeira vez que um recorde é registrado.
